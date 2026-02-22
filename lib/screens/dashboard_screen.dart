@@ -186,7 +186,7 @@ class DashboardScreen extends StatelessWidget {
                                     : null,
                               ),
                               if (!isLast)
-                                const Divider(
+                                Divider(
                                   height: 1,
                                   indent: 0,
                                   endIndent: 0,
