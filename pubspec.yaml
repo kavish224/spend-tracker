@@ -2,7 +2,7 @@ name: spend_tracker
 description: A personal expense tracker app
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: '^3.11.0'
@@ -19,6 +19,27 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.6
 
 flutter:
   uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon/app_icon.png
+  adaptive_icon_background: "#0F0F0F"
+  adaptive_icon_foreground: assets/icon/app_icon.png
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#0F0F0F"
+  color_dark: "#0F0F0F"
+  image: assets/icon/app_icon.png
+  image_dark: assets/icon/app_icon.png
+  android_12:
+    color: "#0F0F0F"
+    color_dark: "#0F0F0F"
+    image: assets/icon/app_icon.png

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/expense_provider.dart';
 import 'accounts_screen.dart';
 import 'add_expense_sheet.dart';
 import 'analytics_screen.dart';
@@ -22,31 +24,35 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<ExpenseProvider>();
+
     return Scaffold(
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
-        switchInCurve: Curves.easeOut,
-        switchOutCurve: Curves.easeIn,
-        child: KeyedSubtree(
-          key: ValueKey(_currentIndex),
-          child: _screens[_currentIndex],
-        ),
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF222222),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: const Color(0xFF171717),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            builder: (_) => const AddExpenseSheet(),
-          );
-        },
-        child: const Icon(Icons.add),
+        onPressed: provider.isAdding
+            ? null
+            : () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: const Color(0xFF171717),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  builder: (_) => const AddExpenseSheet(),
+                );
+              },
+        child: provider.isAdding
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.add),
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),

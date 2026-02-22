@@ -28,12 +28,28 @@ class Expense {
 
   factory Expense.fromMap(Map<String, dynamic> map) {
     return Expense(
-      id: map['id'],
-      amount: map['amount'],
-      category: map['category'],
-      paymentMethod: map['paymentMethod'],
-      date: DateTime.parse(map['date']),
-      note: map['note'],
+      id: map['id'] as int?,
+      amount: _toDouble(map['amount']),
+      category: (map['category'] ?? 'Other').toString(),
+      paymentMethod: (map['paymentMethod'] ?? 'Unknown').toString(),
+      date: _toDateTime(map['date']),
+      note: map['note']?.toString(),
     );
+  }
+
+  static double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  static DateTime _toDateTime(dynamic value) {
+    if (value is String) {
+      return DateTime.tryParse(value) ?? DateTime.fromMillisecondsSinceEpoch(0);
+    }
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    return DateTime.fromMillisecondsSinceEpoch(0);
   }
 }

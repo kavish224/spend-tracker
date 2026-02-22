@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../providers/expense_providers.dart';
+import '../providers/expense_provider.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/donut_chart.dart';
 
@@ -16,6 +16,10 @@ class DashboardScreen extends StatelessWidget {
       symbol: '₹',
       decimalDigits: 0,
     );
+
+    if (provider.isLoading && provider.expenses.isEmpty) {
+      return const SafeArea(child: Center(child: CircularProgressIndicator()));
+    }
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -77,6 +81,30 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
+            if (provider.errorMessage != null) ...[
+              DashboardCard(
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.error_outline_rounded,
+                      color: Color(0xFFFF7B72),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        provider.errorMessage!,
+                        style: const TextStyle(color: Color(0xFFFFB4AE)),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: provider.fetchExpenses,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+            ],
             DonutChart(
               title: 'Category Breakdown',
               data: provider.categoryTotals,
