@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/expense.dart';
 import '../providers/expense_provider.dart';
@@ -70,6 +71,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   decimal: true,
                 ),
                 textInputAction: TextInputAction.next,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,\s]')),
+                ],
                 decoration: InputDecoration(
                   labelText: 'Amount',
                   hintText: 'e.g. 499',
@@ -82,8 +86,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                   ),
                 ),
                 validator: (value) {
-                  final raw = value?.trim() ?? '';
-                  final amount = double.tryParse(raw.replaceAll(',', '.'));
+                  final amount = _parseAmount(value);
                   if (amount == null || amount <= 0) {
                     return 'Enter a valid amount';
                   }
@@ -154,9 +157,10 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                       : () async {
                           if (!_formKey.currentState!.validate()) return;
 
-                          final amount = double.parse(
-                            amountController.text.trim().replaceAll(',', '.'),
-                          );
+                          final amount = _parseAmount(amountController.text);
+                          if (amount == null || amount <= 0) {
+                            return;
+                          }
                           final navigator = Navigator.of(context);
                           final messenger = ScaffoldMessenger.of(context);
 
@@ -209,5 +213,30 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         ),
       ),
     );
+  }
+
+  double? _parseAmount(String? input) {
+    if (input == null) return null;
+    var raw = input.trim().replaceAll(' ', '');
+    if (raw.isEmpty) return null;
+
+    // Handle common user formats:
+    // 1,200.50 -> 1200.50
+    // 1200,50  -> 1200.50
+    // 1,200    -> 1200
+    final hasComma = raw.contains(',');
+    final hasDot = raw.contains('.');
+    if (hasComma && hasDot) {
+      raw = raw.replaceAll(',', '');
+    } else if (hasComma) {
+      final commaCount = ','.allMatches(raw).length;
+      final looksLikeThousands =
+          commaCount > 1 || RegExp(r'^\d{1,3}(,\d{3})+$').hasMatch(raw);
+      raw = looksLikeThousands
+          ? raw.replaceAll(',', '')
+          : raw.replaceAll(',', '.');
+    }
+
+    return double.tryParse(raw);
   }
 }

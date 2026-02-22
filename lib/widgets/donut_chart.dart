@@ -55,7 +55,7 @@ class DonutChart extends StatelessWidget {
                           );
                         }),
                       ),
-                      swapAnimationDuration: const Duration(milliseconds: 450),
+                      swapAnimationDuration: const Duration(milliseconds: 250),
                       swapAnimationCurve: Curves.easeOutCubic,
                     ),
                   ),

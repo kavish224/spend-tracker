@@ -24,14 +24,16 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ExpenseProvider>();
+    final isAdding = context.select<ExpenseProvider, bool>(
+      (provider) => provider.isAdding,
+    );
 
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF222222),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        onPressed: provider.isAdding
+        onPressed: isAdding
             ? null
             : () {
                 showModalBottomSheet(
@@ -46,7 +48,7 @@ class _MainNavigationState extends State<MainNavigation> {
                   builder: (_) => const AddExpenseSheet(),
                 );
               },
-        child: provider.isAdding
+        child: isAdding
             ? const SizedBox(
                 width: 20,
                 height: 20,

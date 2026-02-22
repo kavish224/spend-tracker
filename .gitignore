@@ -10,6 +10,7 @@ coverage/
 .flutter-plugins
 .flutter-plugins-dependencies
 .flutter-versions
+devtools_options.yaml
 **/doc/api/
 lib/generated_plugin_registrant.dart
 

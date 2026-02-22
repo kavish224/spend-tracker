@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/expense.dart';
 import '../providers/expense_provider.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/donut_chart.dart';
@@ -10,14 +11,38 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ExpenseProvider>();
+    final isLoading = context.select<ExpenseProvider, bool>(
+      (provider) => provider.isLoading,
+    );
+    final isEmpty = context.select<ExpenseProvider, bool>(
+      (provider) => provider.expenses.isEmpty,
+    );
+    final errorMessage = context.select<ExpenseProvider, String?>(
+      (provider) => provider.errorMessage,
+    );
+    final monthlyTotal = context.select<ExpenseProvider, double>(
+      (provider) => provider.monthlyTotal,
+    );
+    final todayTotal = context.select<ExpenseProvider, double>(
+      (provider) => provider.todayTotal,
+    );
+    final categoryTotals = context.select<ExpenseProvider, Map<String, double>>(
+      (provider) => provider.categoryTotals,
+    );
+    final paymentMethodTotals = context
+        .select<ExpenseProvider, Map<String, double>>(
+          (provider) => provider.paymentMethodTotals,
+        );
+    final recentExpenses = context.select<ExpenseProvider, List<Expense>>(
+      (provider) => provider.recentExpenses,
+    );
     final formatter = NumberFormat.currency(
       locale: 'en_IN',
       symbol: '₹',
       decimalDigits: 0,
     );
 
-    if (provider.isLoading && provider.expenses.isEmpty) {
+    if (isLoading && isEmpty) {
       return const SafeArea(child: Center(child: CircularProgressIndicator()));
     }
 
@@ -42,7 +67,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    formatter.format(provider.monthlyTotal),
+                    formatter.format(monthlyTotal),
                     style: const TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.w700,
@@ -68,7 +93,7 @@ class DashboardScreen extends StatelessWidget {
                           style: TextStyle(color: Color(0xFFB3B3B3)),
                         ),
                         Text(
-                          formatter.format(provider.todayTotal),
+                          formatter.format(todayTotal),
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
@@ -81,7 +106,7 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            if (provider.errorMessage != null) ...[
+            if (errorMessage != null) ...[
               DashboardCard(
                 child: Row(
                   children: [
@@ -92,12 +117,13 @@ class DashboardScreen extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        provider.errorMessage!,
+                        errorMessage,
                         style: const TextStyle(color: Color(0xFFFFB4AE)),
                       ),
                     ),
                     TextButton(
-                      onPressed: provider.fetchExpenses,
+                      onPressed: () =>
+                          context.read<ExpenseProvider>().fetchExpenses(),
                       child: const Text('Retry'),
                     ),
                   ],
@@ -105,14 +131,11 @@ class DashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 18),
             ],
-            DonutChart(
-              title: 'Category Breakdown',
-              data: provider.categoryTotals,
-            ),
+            DonutChart(title: 'Category Breakdown', data: categoryTotals),
             const SizedBox(height: 18),
             DonutChart(
               title: 'Payment Method Breakdown',
-              data: provider.paymentMethodTotals,
+              data: paymentMethodTotals,
             ),
             const SizedBox(height: 18),
             DashboardCard(
@@ -124,7 +147,7 @@ class DashboardScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 14),
-                  if (provider.recentExpenses.isEmpty)
+                  if (recentExpenses.isEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
                       child: Center(
@@ -135,11 +158,10 @@ class DashboardScreen extends StatelessWidget {
                       ),
                     )
                   else
-                    ...provider.recentExpenses.asMap().entries.map((entry) {
+                    ...recentExpenses.asMap().entries.map((entry) {
                       final index = entry.key;
                       final expense = entry.value;
-                      final isLast =
-                          index == provider.recentExpenses.length - 1;
+                      final isLast = index == recentExpenses.length - 1;
                       return Column(
                         children: [
                           _RecentExpenseRow(
@@ -218,23 +240,9 @@ class _RecentExpenseRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: const Duration(milliseconds: 380),
-          curve: Curves.easeOut,
-          builder: (context, value, child) {
-            return Opacity(
-              opacity: value,
-              child: Transform.translate(
-                offset: Offset(10 * (1 - value), 0),
-                child: child,
-              ),
-            );
-          },
-          child: Text(
-            amount,
-            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-          ),
+        Text(
+          amount,
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
         ),
       ],
     );

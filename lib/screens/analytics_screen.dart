@@ -11,12 +11,27 @@ class AnalyticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ExpenseProvider>();
-    final monthlyData = _buildMonthlyTotals(provider.expenses);
-    final categoryData = provider.categoryTotals.entries.toList()
+    final isLoading = context.select<ExpenseProvider, bool>(
+      (provider) => provider.isLoading,
+    );
+    final isEmpty = context.select<ExpenseProvider, bool>(
+      (provider) => provider.expenses.isEmpty,
+    );
+    final errorMessage = context.select<ExpenseProvider, String?>(
+      (provider) => provider.errorMessage,
+    );
+    final expenses = context.select<ExpenseProvider, List<Expense>>(
+      (provider) => provider.expenses,
+    );
+    final categoryTotals = context.select<ExpenseProvider, Map<String, double>>(
+      (provider) => provider.categoryTotals,
+    );
+
+    final monthlyData = _buildMonthlyTotals(expenses);
+    final categoryData = categoryTotals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    if (provider.isLoading && provider.expenses.isEmpty) {
+    if (isLoading && isEmpty) {
       return const SafeArea(child: Center(child: CircularProgressIndicator()));
     }
 
@@ -31,7 +46,7 @@ class AnalyticsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 18),
-            if (provider.errorMessage != null) ...[
+            if (errorMessage != null) ...[
               DashboardCard(
                 child: Row(
                   children: [
@@ -42,12 +57,13 @@ class AnalyticsScreen extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        provider.errorMessage!,
+                        errorMessage,
                         style: const TextStyle(color: Color(0xFFFFB4AE)),
                       ),
                     ),
                     TextButton(
-                      onPressed: provider.fetchExpenses,
+                      onPressed: () =>
+                          context.read<ExpenseProvider>().fetchExpenses(),
                       child: const Text('Retry'),
                     ),
                   ],
@@ -147,7 +163,7 @@ class AnalyticsScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            duration: const Duration(milliseconds: 450),
+                            duration: const Duration(milliseconds: 250),
                             curve: Curves.easeOutCubic,
                           ),
                   ),
@@ -237,7 +253,7 @@ class AnalyticsScreen extends StatelessWidget {
                               }),
                             ),
                             swapAnimationDuration: const Duration(
-                              milliseconds: 450,
+                              milliseconds: 250,
                             ),
                             swapAnimationCurve: Curves.easeOutCubic,
                           ),
