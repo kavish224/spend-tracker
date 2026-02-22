@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Icons;
 import '../widgets/dashboard_card.dart';
 
 class AccountsScreen extends StatelessWidget {
@@ -11,30 +12,30 @@ class AccountsScreen extends StatelessWidget {
         SliverSafeArea(
           top: false,
           sliver: SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 140),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 8),
                 const _AccountItem(
-                  icon: CupertinoIcons.money_dollar_circle_fill,
+                  icon: Icons.payments_rounded,
                   title: 'Cash',
                   subtitle: 'Track wallet and physical cash expenses',
                 ),
                 const SizedBox(height: 14),
                 const _AccountItem(
-                  icon: CupertinoIcons.qrcode,
+                  icon: Icons.qr_code_rounded,
                   title: 'UPI',
                   subtitle: 'Monitor instant payments across UPI apps',
                 ),
                 const SizedBox(height: 14),
                 const _AccountItem(
-                  icon: CupertinoIcons.creditcard_fill,
+                  icon: Icons.credit_card_rounded,
                   title: 'Credit Cards',
                   subtitle: 'Manage card-based spending and bill cycles',
                 ),
                 const SizedBox(height: 14),
                 const _AccountItem(
-                  icon: CupertinoIcons.building_2_fill,
+                  icon: Icons.account_balance_rounded,
                   title: 'Bank',
                   subtitle: 'Track spending linked to bank accounts',
                 ),

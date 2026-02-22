@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/expense.dart';
@@ -53,7 +54,7 @@ class DashboardScreen extends StatelessWidget {
         SliverSafeArea(
           top: false,
           sliver: SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 140),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 DashboardCard(
@@ -115,7 +116,7 @@ class DashboardScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         const Icon(
-                          CupertinoIcons.exclamationmark_circle_fill,
+                          Icons.error_outline_rounded,
                           color: CupertinoColors.systemRed,
                           size: 22,
                         ),
@@ -186,10 +187,10 @@ class DashboardScreen extends StatelessWidget {
                                     : null,
                               ),
                               if (!isLast)
-                                Divider(
+                                Container(
                                   height: 1,
-                                  indent: 0,
-                                  endIndent: 0,
+                                  color: CupertinoColors.separator
+                                      .resolveFrom(context),
                                 ),
                             ],
                           );
@@ -232,7 +233,7 @@ class _RecentExpenseTile extends StatelessWidget {
         padding: const EdgeInsets.only(right: 20),
         color: CupertinoColors.systemRed,
         child: const Icon(
-          CupertinoIcons.delete_solid,
+          Icons.delete_rounded,
           color: CupertinoColors.white,
           size: 22,
         ),
@@ -320,17 +321,17 @@ class _RecentExpenseTile extends StatelessWidget {
   IconData _categoryIcon(String input) {
     final value = input.toLowerCase();
     if (value.contains('food') || value.contains('grocery')) {
-      return CupertinoIcons.cart_fill;
+      return Icons.restaurant_rounded;
     }
     if (value.contains('fuel') || value.contains('travel')) {
-      return CupertinoIcons.car_fill;
+      return Icons.local_gas_station_rounded;
     }
     if (value.contains('rent') || value.contains('home')) {
-      return CupertinoIcons.house_fill;
+      return Icons.home_rounded;
     }
     if (value.contains('shop')) {
-      return CupertinoIcons.bag_fill;
+      return Icons.shopping_bag_rounded;
     }
-    return CupertinoIcons.doc_text_fill;
+    return Icons.receipt_long_rounded;
   }
 }

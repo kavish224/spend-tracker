@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import 'accounts_screen.dart';
@@ -10,9 +11,9 @@ class MainNavigation extends StatelessWidget {
   const MainNavigation({super.key});
 
   static const List<_TabItem> _tabs = [
-    _TabItem(title: 'Dashboard', icon: CupertinoIcons.square_grid_2x2_fill),
-    _TabItem(title: 'Analytics', icon: CupertinoIcons.chart_bar_fill),
-    _TabItem(title: 'Accounts', icon: CupertinoIcons.creditcard_fill),
+    _TabItem(title: 'Dashboard', icon: Icons.dashboard_rounded),
+    _TabItem(title: 'Analytics', icon: Icons.insights_rounded),
+    _TabItem(title: 'Accounts', icon: Icons.account_balance_wallet_rounded),
   ];
 
   @override
@@ -31,32 +32,24 @@ class MainNavigation extends StatelessWidget {
         ],
       ),
       tabBuilder: (context, index) {
-        final isAdding = context.select<ExpenseProvider, bool>(
-          (p) => p.isAdding,
-        );
         Widget screen;
         String title;
-        bool showAddButton;
         switch (index) {
           case 0:
             screen = const DashboardScreen();
             title = 'Dashboard';
-            showAddButton = true;
             break;
           case 1:
             screen = const AnalyticsScreen();
             title = 'Analytics';
-            showAddButton = false;
             break;
           case 2:
             screen = const AccountsScreen();
             title = 'Accounts';
-            showAddButton = false;
             break;
           default:
             screen = const DashboardScreen();
             title = 'Dashboard';
-            showAddButton = true;
         }
         return CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
@@ -69,21 +62,17 @@ class MainNavigation extends StatelessWidget {
                 fontSize: 17,
               ),
             ),
-            trailing: showAddButton
-                ? CupertinoButton(
-                    padding: const EdgeInsets.only(right: 8),
-                    onPressed: isAdding
-                        ? null
-                        : () => _presentAddExpense(context),
-                    child: isAdding
-                        ? const CupertinoActivityIndicator()
-                        : const Icon(CupertinoIcons.add_circled_solid),
-                  )
-                : null,
           ),
-          child: SafeArea(
-            top: false,
-            child: screen,
+          child: Column(
+            children: [
+              Expanded(
+                child: SafeArea(
+                  top: false,
+                  child: screen,
+                ),
+              ),
+              _AddExpenseFab(presentAdd: () => _presentAddExpense(context)),
+            ],
           ),
         );
       },
@@ -94,6 +83,57 @@ class MainNavigation extends StatelessWidget {
     showCupertinoModalPopup<void>(
       context: context,
       builder: (context) => const AddExpenseSheet(),
+    );
+  }
+}
+
+class _AddExpenseFab extends StatelessWidget {
+  const _AddExpenseFab({required this.presentAdd});
+
+  final VoidCallback presentAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final isAdding = context.select<ExpenseProvider, bool>((p) => p.isAdding);
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+        child: SizedBox(
+          height: 52,
+          width: double.infinity,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            color: CupertinoColors.systemBlue,
+            borderRadius: BorderRadius.circular(14),
+            onPressed: isAdding ? null : presentAdd,
+            child: isAdding
+                ? const CupertinoActivityIndicator(
+                    color: CupertinoColors.white,
+                  )
+                : const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add_rounded,
+                        color: CupertinoColors.white,
+                        size: 22,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Add Expense',
+                        style: TextStyle(
+                          color: CupertinoColors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ),
     );
   }
 }

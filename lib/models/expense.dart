@@ -26,6 +26,17 @@ class Expense {
     };
   }
 
+  /// Map for DB update (excludes id to avoid touching primary key).
+  Map<String, dynamic> toMapForUpdate() {
+    return {
+      'amount': amount,
+      'category': category,
+      'paymentMethod': paymentMethod,
+      'date': date.toIso8601String(),
+      'note': note,
+    };
+  }
+
   factory Expense.fromMap(Map<String, dynamic> map) {
     return Expense(
       id: map['id'] as int?,

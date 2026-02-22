@@ -32,13 +32,22 @@ flutter build appbundle --release
 
 Note: if `android/key.properties` is missing, release builds fall back to debug signing for local testing only.
 
-## iOS Release Setup
-1. Open `ios/Runner.xcworkspace` in Xcode.
-2. Set your Team, Bundle Identifier, and Signing Certificate in Runner target.
-3. Build archive from Xcode or run:
-```bash
-flutter build ipa --release
-```
+## iOS Build / Release Setup
+**If you see "could not find Generated.xcconfig" or build fails from Xcode:**
+
+1. From the project root, run (this creates `ios/Flutter/Generated.xcconfig` and installs pods):
+   ```bash
+   flutter pub get && cd ios && pod install && cd ..
+   ```
+   Or use the script: `sh scripts/ios_prepare.sh`
+2. Open **`ios/Runner.xcworkspace`** in Xcode (use the `.xcworkspace`, not `.xcodeproj`).
+3. Set your Team, Bundle Identifier, and Signing Certificate in the Runner target.
+4. Build from Xcode or run:
+   ```bash
+   flutter run
+   # or for release:
+   flutter build ipa --release
+   ```
 
 ## App Assets
 - Launcher icon and splash are generated from: `assets/icon/app_icon.png`

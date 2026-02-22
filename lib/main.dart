@@ -14,7 +14,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => ExpenseProvider()..init(),
+      create: (_) {
+        final provider = ExpenseProvider();
+        // Defer DB init so first frame paints immediately (avoids blank screen)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          provider.init();
+        });
+        return provider;
+      },
       child: CupertinoApp(
         debugShowCheckedModeBanner: false,
         theme: const CupertinoThemeData(

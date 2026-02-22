@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/expense.dart';
@@ -42,7 +43,7 @@ class AnalyticsScreen extends StatelessWidget {
         SliverSafeArea(
           top: false,
           sliver: SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 140),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 if (errorMessage != null) ...[
@@ -50,7 +51,7 @@ class AnalyticsScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         const Icon(
-                          CupertinoIcons.exclamationmark_circle_fill,
+                          Icons.error_outline_rounded,
                           color: CupertinoColors.systemRed,
                           size: 22,
                         ),
@@ -159,9 +160,9 @@ class AnalyticsScreen extends StatelessWidget {
                                         gradient: LinearGradient(
                                           colors: [
                                             CupertinoColors.systemBlue
-                                                .withOpacity(0.2),
+                                                .withValues(alpha: 0.2),
                                             CupertinoColors.systemBlue
-                                                .withOpacity(0.02),
+                                                .withValues(alpha: 0.02),
                                           ],
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
@@ -315,7 +316,9 @@ class AnalyticsScreen extends StatelessWidget {
       }
     }
 
-    return buckets.entries
+    final sorted = buckets.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+    return sorted
         .map(
           (e) =>
               _MonthlyTotal(label: formatter.format(e.key), total: e.value),

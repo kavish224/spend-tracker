@@ -104,7 +104,7 @@ class ExpenseProvider with ChangeNotifier {
 
     try {
       await _openDbIfNeeded();
-      await DBHelper.update(expense.id!, expense.toMap());
+      await DBHelper.update(expense.id!, expense.toMapForUpdate());
       final index = _expenses.indexWhere((e) => e.id == expense.id);
       if (index >= 0) _expenses[index] = expense;
       _recalculateMetrics();
@@ -112,6 +112,7 @@ class ExpenseProvider with ChangeNotifier {
       notifyListeners();
     } catch (_) {
       _errorMessage = 'Failed to update expense.';
+      notifyListeners();
       rethrow;
     }
   }
@@ -126,6 +127,7 @@ class ExpenseProvider with ChangeNotifier {
       notifyListeners();
     } catch (_) {
       _errorMessage = 'Failed to delete expense.';
+      notifyListeners();
       rethrow;
     }
   }

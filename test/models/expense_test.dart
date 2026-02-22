@@ -33,4 +33,23 @@ void main() {
       expect(expense.date, DateTime.fromMillisecondsSinceEpoch(0));
     });
   });
+
+  group('Expense.toMapForUpdate', () {
+    test('excludes id from map', () {
+      final expense = Expense(
+        id: 42,
+        amount: 100,
+        category: 'Food',
+        paymentMethod: 'UPI',
+        date: DateTime.utc(2026, 2, 22),
+        note: 'test',
+      );
+      final map = expense.toMapForUpdate();
+      expect(map.containsKey('id'), false);
+      expect(map['amount'], 100.0);
+      expect(map['category'], 'Food');
+      expect(map['paymentMethod'], 'UPI');
+      expect(map['note'], 'test');
+    });
+  });
 }

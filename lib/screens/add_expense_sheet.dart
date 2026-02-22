@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/expense.dart';
 import '../providers/expense_provider.dart';
+import '../utils/amount_parser.dart';
 
 class AddExpenseSheet extends StatefulWidget {
   const AddExpenseSheet({super.key});
@@ -163,8 +165,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               children: [
                 Text(_category, style: const TextStyle(fontSize: 17)),
                 const Icon(
-                  CupertinoIcons.chevron_down,
-                  size: 18,
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 22,
                   color: CupertinoColors.inactiveGray,
                 ),
               ],
@@ -207,8 +209,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               children: [
                 Text(_paymentMethod, style: const TextStyle(fontSize: 17)),
                 const Icon(
-                  CupertinoIcons.chevron_down,
-                  size: 18,
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 22,
                   color: CupertinoColors.inactiveGray,
                 ),
               ],
@@ -264,7 +266,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
   }
 
   Future<void> _submit(ExpenseProvider provider) async {
-    final amount = _parseAmount(_amountController.text);
+    final amount = parseAmount(_amountController.text);
     if (amount == null || amount <= 0) {
       _showError(context, 'Enter a valid amount');
       return;
@@ -335,26 +337,6 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     );
   }
 
-  double? _parseAmount(String? input) {
-    if (input == null) return null;
-    var raw = input.trim().replaceAll(' ', '');
-    if (raw.isEmpty) return null;
-
-    final hasComma = raw.contains(',');
-    final hasDot = raw.contains('.');
-    if (hasComma && hasDot) {
-      raw = raw.replaceAll(',', '');
-    } else if (hasComma) {
-      final commaCount = ','.allMatches(raw).length;
-      final looksLikeThousands =
-          commaCount > 1 || RegExp(r'^\d{1,3}(,\d{3})+$').hasMatch(raw);
-      raw = looksLikeThousands
-          ? raw.replaceAll(',', '')
-          : raw.replaceAll(',', '.');
-    }
-
-    return double.tryParse(raw);
-  }
 }
 
 class _PickerModal extends StatefulWidget {
