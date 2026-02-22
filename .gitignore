@@ -1,0 +1,109 @@
+# ==========================================
+# Flutter / Dart
+# ==========================================
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+coverage/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+**/doc/api/
+lib/generated_plugin_registrant.dart
+
+# Obfuscation / Symbols
+app.*.symbols
+app.*.map.json
+
+# ==========================================
+# OS Files
+# ==========================================
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Logs / Temp
+# ==========================================
+*.log
+*.tmp
+*.swp
+*.swo
+*.pid
+
+# ==========================================
+# IDEs
+# ==========================================
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# ==========================================
+# Android
+# ==========================================
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/local.properties
+*.jks
+*.keystore
+key.properties
+
+# ==========================================
+# iOS
+# ==========================================
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcuserdatad/
+*.moved-aside
+
+# ==========================================
+# macOS
+# ==========================================
+macos/Pods/
+macos/Flutter/ephemeral/
+macos/Runner.xcworkspace/xcuserdata/
+
+# ==========================================
+# Windows / Linux
+# ==========================================
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# ==========================================
+# Web
+# ==========================================
+build/web/
+
+# ==========================================
+# Environment / Secrets
+# ==========================================
+.env
+.env.*
+*.pem
+*.p12
+*.mobileprovision
+*.cer
+*.key
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
