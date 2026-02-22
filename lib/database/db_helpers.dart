@@ -31,8 +31,31 @@ class DBHelper {
           'CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date)',
         );
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        // Add migrations here when bumping _dbVersion.
+        // Example: if (oldVersion < 2) { await db.execute('ALTER TABLE ...'); }
+      },
     );
     return _database!;
+  }
+
+  static Future<int> update(int id, Map<String, dynamic> map) async {
+    final db = await initDB();
+    return db.update(
+      'expenses',
+      map,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  static Future<int> delete(int id) async {
+    final db = await initDB();
+    return db.delete(
+      'expenses',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   static Future<void> closeDB() async {

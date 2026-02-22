@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import '../widgets/dashboard_card.dart';
 
 class AccountsScreen extends StatelessWidget {
@@ -6,43 +6,43 @@ class AccountsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'Accounts',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+    return CustomScrollView(
+      slivers: [
+        SliverSafeArea(
+          top: false,
+          sliver: SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                const SizedBox(height: 8),
+                const _AccountItem(
+                  icon: CupertinoIcons.money_dollar_circle_fill,
+                  title: 'Cash',
+                  subtitle: 'Track wallet and physical cash expenses',
+                ),
+                const SizedBox(height: 14),
+                const _AccountItem(
+                  icon: CupertinoIcons.qrcode,
+                  title: 'UPI',
+                  subtitle: 'Monitor instant payments across UPI apps',
+                ),
+                const SizedBox(height: 14),
+                const _AccountItem(
+                  icon: CupertinoIcons.creditcard_fill,
+                  title: 'Credit Cards',
+                  subtitle: 'Manage card-based spending and bill cycles',
+                ),
+                const SizedBox(height: 14),
+                const _AccountItem(
+                  icon: CupertinoIcons.building_2_fill,
+                  title: 'Bank',
+                  subtitle: 'Track spending linked to bank accounts',
+                ),
+              ]),
             ),
-            SizedBox(height: 18),
-            _AccountItem(
-              icon: Icons.payments_rounded,
-              title: 'Cash',
-              subtitle: 'Track wallet and physical cash expenses',
-            ),
-            SizedBox(height: 14),
-            _AccountItem(
-              icon: Icons.qr_code_scanner_rounded,
-              title: 'UPI',
-              subtitle: 'Monitor instant payments across UPI apps',
-            ),
-            SizedBox(height: 14),
-            _AccountItem(
-              icon: Icons.credit_card_rounded,
-              title: 'Credit Cards',
-              subtitle: 'Manage card-based spending and bill cycles',
-            ),
-            SizedBox(height: 14),
-            _AccountItem(
-              icon: Icons.account_balance_rounded,
-              title: 'Bank',
-              subtitle: 'Track spending linked to bank accounts',
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -67,10 +67,10 @@ class _AccountItem extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFF202020),
+              color: CupertinoColors.tertiarySystemFill,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, size: 22, color: const Color(0xFFE3E3E3)),
+            child: Icon(icon, size: 22, color: CupertinoColors.systemGrey),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -80,7 +80,7 @@ class _AccountItem extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 17,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -88,8 +88,8 @@ class _AccountItem extends StatelessWidget {
                 Text(
                   subtitle,
                   style: const TextStyle(
-                    color: Color(0xFF9A9A9A),
-                    fontSize: 12,
+                    color: CupertinoColors.secondaryLabel,
+                    fontSize: 13,
                   ),
                 ),
               ],

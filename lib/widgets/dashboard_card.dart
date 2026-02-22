@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class DashboardCard extends StatelessWidget {
   const DashboardCard({
@@ -16,15 +16,8 @@ class DashboardCard extends StatelessWidget {
       width: double.infinity,
       padding: padding,
       decoration: BoxDecoration(
-        color: const Color(0xFF171717),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x33000000),
-            blurRadius: 18,
-            offset: Offset(0, 8),
-          ),
-        ],
+        color: const Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: child,
     );

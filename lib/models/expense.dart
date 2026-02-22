@@ -52,4 +52,22 @@ class Expense {
     }
     return DateTime.fromMillisecondsSinceEpoch(0);
   }
+
+  Expense copyWith({
+    int? id,
+    double? amount,
+    String? category,
+    String? paymentMethod,
+    DateTime? date,
+    String? note,
+  }) {
+    return Expense(
+      id: id ?? this.id,
+      amount: amount ?? this.amount,
+      category: category ?? this.category,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      date: date ?? this.date,
+      note: note ?? this.note,
+    );
+  }
 }

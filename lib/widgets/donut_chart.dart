@@ -1,5 +1,5 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'dashboard_card.dart';
 
 class DonutChart extends StatelessWidget {
@@ -7,6 +7,15 @@ class DonutChart extends StatelessWidget {
 
   final String title;
   final Map<String, double> data;
+
+  static const List<Color> _palette = [
+    CupertinoColors.systemBlue,
+    CupertinoColors.systemGreen,
+    CupertinoColors.systemOrange,
+    CupertinoColors.systemRed,
+    CupertinoColors.systemPurple,
+    CupertinoColors.systemTeal,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +29,10 @@ class DonutChart extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           const SizedBox(height: 16),
           if (entries.isEmpty)
@@ -29,7 +41,7 @@ class DonutChart extends StatelessWidget {
               child: Center(
                 child: Text(
                   'No data yet',
-                  style: TextStyle(color: Color(0xFF9A9A9A)),
+                  style: TextStyle(color: CupertinoColors.inactiveGray),
                 ),
               ),
             )
@@ -55,7 +67,8 @@ class DonutChart extends StatelessWidget {
                           );
                         }),
                       ),
-                      swapAnimationDuration: const Duration(milliseconds: 250),
+                      swapAnimationDuration:
+                          const Duration(milliseconds: 300),
                       swapAnimationCurve: Curves.easeOutCubic,
                     ),
                   ),
@@ -69,7 +82,7 @@ class DonutChart extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final entry = entries[index];
                         final percent = total == 0
-                            ? 0
+                            ? 0.0
                             : (entry.value / total) * 100;
 
                         return Row(
@@ -94,7 +107,7 @@ class DonutChart extends StatelessWidget {
                             Text(
                               '${percent.toStringAsFixed(0)}%',
                               style: const TextStyle(
-                                color: Color(0xFFBDBDBD),
+                                color: CupertinoColors.secondaryLabel,
                                 fontSize: 12,
                               ),
                             ),
@@ -111,12 +124,3 @@ class DonutChart extends StatelessWidget {
     );
   }
 }
-
-const List<Color> _palette = [
-  Color(0xFF58A6FF),
-  Color(0xFF5EE6A8),
-  Color(0xFFFFB86C),
-  Color(0xFFFF7B72),
-  Color(0xFFA68CFF),
-  Color(0xFF8BE9FD),
-];

@@ -96,6 +96,40 @@ class ExpenseProvider with ChangeNotifier {
     }
   }
 
+  Future<void> updateExpense(Expense expense) async {
+    if (expense.id == null) return;
+    if (expense.amount <= 0) {
+      throw ArgumentError('Expense amount must be greater than zero.');
+    }
+
+    try {
+      await _openDbIfNeeded();
+      await DBHelper.update(expense.id!, expense.toMap());
+      final index = _expenses.indexWhere((e) => e.id == expense.id);
+      if (index >= 0) _expenses[index] = expense;
+      _recalculateMetrics();
+      _errorMessage = null;
+      notifyListeners();
+    } catch (_) {
+      _errorMessage = 'Failed to update expense.';
+      rethrow;
+    }
+  }
+
+  Future<void> deleteExpense(int id) async {
+    try {
+      await _openDbIfNeeded();
+      await DBHelper.delete(id);
+      _expenses.removeWhere((e) => e.id == id);
+      _recalculateMetrics();
+      _errorMessage = null;
+      notifyListeners();
+    } catch (_) {
+      _errorMessage = 'Failed to delete expense.';
+      rethrow;
+    }
+  }
+
   List<Expense> get _currentMonthExpenses {
     final now = DateTime.now();
     return _expenses

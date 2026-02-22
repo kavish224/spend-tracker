@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/expense.dart';
@@ -12,205 +12,325 @@ class AddExpenseSheet extends StatefulWidget {
 }
 
 class _AddExpenseSheetState extends State<AddExpenseSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final amountController = TextEditingController();
-  final noteController = TextEditingController();
-  String category = 'Food';
-  String paymentMethod = 'UPI';
+  final _amountController = TextEditingController();
+  final _noteController = TextEditingController();
+  String _category = 'Food';
+  String _paymentMethod = 'UPI';
   bool _isSubmitting = false;
 
-  final categories = const ['Food', 'Groceries', 'Fuel', 'Rent', 'Shopping'];
-  final payments = const ['Cash', 'UPI', 'Credit Card', 'Bank'];
+  static const List<String> _categories = [
+    'Food',
+    'Groceries',
+    'Fuel',
+    'Rent',
+    'Shopping',
+  ];
+  static const List<String> _payments = [
+    'Cash',
+    'UPI',
+    'Credit Card',
+    'Bank',
+  ];
 
   @override
   void dispose() {
-    amountController.dispose();
-    noteController.dispose();
+    _amountController.dispose();
+    _noteController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ExpenseProvider>(context, listen: false);
-    final theme = Theme.of(context);
+    final provider = context.read<ExpenseProvider>();
 
-    return SafeArea(
-      top: false,
-      child: SingleChildScrollView(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 12,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 44,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3A3A3A),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                ),
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.72,
+      decoration: const BoxDecoration(
+        color: Color(0xFF1C1C1E),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: CupertinoColors.tertiarySystemFill,
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Add Expense',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Add Expense',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                 ),
-                textInputAction: TextInputAction.next,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,\s]')),
+                children: [
+                  _buildAmountField(),
+                  const SizedBox(height: 16),
+                  _buildCategoryPicker(context),
+                  const SizedBox(height: 16),
+                  _buildPaymentPicker(context),
+                  const SizedBox(height: 16),
+                  _buildNoteField(),
+                  const SizedBox(height: 24),
+                  _buildSubmitButton(provider),
                 ],
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  hintText: 'e.g. 499',
-                  prefixText: '₹ ',
-                  filled: true,
-                  fillColor: const Color(0xFF202020),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                validator: (value) {
-                  final amount = _parseAmount(value);
-                  if (amount == null || amount <= 0) {
-                    return 'Enter a valid amount';
-                  }
-                  return null;
-                },
               ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: category,
-                decoration: InputDecoration(
-                  labelText: 'Category',
-                  filled: true,
-                  fillColor: const Color(0xFF202020),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                items: categories
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                    .toList(),
-                onChanged: _isSubmitting
-                    ? null
-                    : (val) => setState(() => category = val ?? category),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: paymentMethod,
-                decoration: InputDecoration(
-                  labelText: 'Payment Method',
-                  filled: true,
-                  fillColor: const Color(0xFF202020),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                items: payments
-                    .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                    .toList(),
-                onChanged: _isSubmitting
-                    ? null
-                    : (val) =>
-                          setState(() => paymentMethod = val ?? paymentMethod),
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: noteController,
-                textInputAction: TextInputAction.done,
-                maxLines: 2,
-                decoration: InputDecoration(
-                  labelText: 'Note (optional)',
-                  hintText: 'Add details',
-                  filled: true,
-                  fillColor: const Color(0xFF202020),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _isSubmitting
-                      ? null
-                      : () async {
-                          if (!_formKey.currentState!.validate()) return;
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-                          final amount = _parseAmount(amountController.text);
-                          if (amount == null || amount <= 0) {
-                            return;
-                          }
-                          final navigator = Navigator.of(context);
-                          final messenger = ScaffoldMessenger.of(context);
-
-                          setState(() => _isSubmitting = true);
-                          try {
-                            await provider.addExpense(
-                              Expense(
-                                amount: amount,
-                                category: category,
-                                paymentMethod: paymentMethod,
-                                note: noteController.text.trim().isEmpty
-                                    ? null
-                                    : noteController.text.trim(),
-                                date: DateTime.now(),
-                              ),
-                            );
-                            if (!mounted) return;
-                            navigator.pop();
-                          } catch (_) {
-                            if (!mounted) return;
-                            messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text('Unable to add expense.'),
-                              ),
-                            );
-                          } finally {
-                            if (mounted) {
-                              setState(() => _isSubmitting = false);
-                            }
-                          }
-                        },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: _isSubmitting
-                      ? const SizedBox(
-                          height: 18,
-                          width: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Add Expense'),
-                ),
-              ),
-            ],
+  Widget _buildAmountField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Amount',
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel,
+            fontSize: 13,
           ),
         ),
+        const SizedBox(height: 6),
+        CupertinoTextField(
+          controller: _amountController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          placeholder: 'e.g. 499',
+          prefix: const Padding(
+            padding: EdgeInsets.only(left: 14),
+            child: Text('₹ ', style: TextStyle(fontSize: 17)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: CupertinoColors.tertiarySystemFill,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,\s]')),
+          ],
+          style: const TextStyle(fontSize: 17),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryPicker(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Category',
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel,
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: () => _showPicker(
+            context: context,
+            title: 'Category',
+            items: _categories,
+            selected: _category,
+            onSelected: (v) => setState(() => _category = v),
+          ),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: CupertinoColors.tertiarySystemFill,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(_category, style: const TextStyle(fontSize: 17)),
+                const Icon(
+                  CupertinoIcons.chevron_down,
+                  size: 18,
+                  color: CupertinoColors.inactiveGray,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentPicker(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Payment Method',
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel,
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: () => _showPicker(
+            context: context,
+            title: 'Payment Method',
+            items: _payments,
+            selected: _paymentMethod,
+            onSelected: (v) => setState(() => _paymentMethod = v),
+          ),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: CupertinoColors.tertiarySystemFill,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(_paymentMethod, style: const TextStyle(fontSize: 17)),
+                const Icon(
+                  CupertinoIcons.chevron_down,
+                  size: 18,
+                  color: CupertinoColors.inactiveGray,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNoteField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Note (optional)',
+          style: TextStyle(
+            color: CupertinoColors.secondaryLabel,
+            fontSize: 13,
+          ),
+        ),
+        const SizedBox(height: 6),
+        CupertinoTextField(
+          controller: _noteController,
+          placeholder: 'Add details',
+          maxLines: 2,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: CupertinoColors.tertiarySystemFill,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          style: const TextStyle(fontSize: 17),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubmitButton(ExpenseProvider provider) {
+    return SizedBox(
+      width: double.infinity,
+      child: CupertinoButton(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        color: CupertinoColors.systemBlue,
+        borderRadius: BorderRadius.circular(12),
+        onPressed: _isSubmitting
+            ? null
+            : () => _submit(provider),
+        child: _isSubmitting
+            ? const CupertinoActivityIndicator(color: CupertinoColors.white)
+            : const Text('Add Expense'),
+      ),
+    );
+  }
+
+  Future<void> _submit(ExpenseProvider provider) async {
+    final amount = _parseAmount(_amountController.text);
+    if (amount == null || amount <= 0) {
+      _showError(context, 'Enter a valid amount');
+      return;
+    }
+
+    final navigator = Navigator.of(context);
+
+    setState(() => _isSubmitting = true);
+    try {
+      await provider.addExpense(
+        Expense(
+          amount: amount,
+          category: _category,
+          paymentMethod: _paymentMethod,
+          note: _noteController.text.trim().isEmpty
+              ? null
+              : _noteController.text.trim(),
+          date: DateTime.now(),
+        ),
+      );
+      if (!mounted) return;
+      navigator.pop();
+    } catch (_) {
+      if (!mounted) return;
+      _showError(context, 'Unable to add expense.');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  void _showError(BuildContext context, String message) {
+    showCupertinoDialog<void>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        content: Text(message),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPicker({
+    required BuildContext context,
+    required String title,
+    required List<String> items,
+    required String selected,
+    required ValueChanged<String> onSelected,
+  }) {
+    int selectedIndex = items.indexOf(selected);
+    if (selectedIndex < 0) selectedIndex = 0;
+
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (pickerContext) => _PickerModal(
+        title: title,
+        items: items,
+        initialIndex: selectedIndex,
+        onDone: (index) {
+          onSelected(items[index]);
+          Navigator.of(pickerContext).pop();
+        },
+        onCancel: () => Navigator.of(pickerContext).pop(),
       ),
     );
   }
@@ -220,10 +340,6 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     var raw = input.trim().replaceAll(' ', '');
     if (raw.isEmpty) return null;
 
-    // Handle common user formats:
-    // 1,200.50 -> 1200.50
-    // 1200,50  -> 1200.50
-    // 1,200    -> 1200
     final hasComma = raw.contains(',');
     final hasDot = raw.contains('.');
     if (hasComma && hasDot) {
@@ -238,5 +354,86 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
     }
 
     return double.tryParse(raw);
+  }
+}
+
+class _PickerModal extends StatefulWidget {
+  const _PickerModal({
+    required this.title,
+    required this.items,
+    required this.initialIndex,
+    required this.onDone,
+    required this.onCancel,
+  });
+
+  final String title;
+  final List<String> items;
+  final int initialIndex;
+  final ValueChanged<int> onDone;
+  final VoidCallback onCancel;
+
+  @override
+  State<_PickerModal> createState() => _PickerModalState();
+}
+
+class _PickerModalState extends State<_PickerModal> {
+  late int _selectedIndex;
+  late FixedExtentScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+    _scrollController = FixedExtentScrollController(
+      initialItem: widget.initialIndex,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 250,
+      color: const Color(0xFF1C1C1E),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CupertinoButton(
+                onPressed: widget.onCancel,
+                child: const Text('Cancel'),
+              ),
+              Text(
+                widget.title,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              CupertinoButton(
+                onPressed: () => widget.onDone(_selectedIndex),
+                child: const Text('Done'),
+              ),
+            ],
+          ),
+          Expanded(
+            child: CupertinoPicker(
+              scrollController: _scrollController,
+              itemExtent: 36,
+              onSelectedItemChanged: (i) => setState(() => _selectedIndex = i),
+              children: widget.items
+                  .map((s) => Center(child: Text(s)))
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

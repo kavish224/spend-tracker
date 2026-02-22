@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import 'accounts_screen.dart';
@@ -6,89 +6,100 @@ import 'add_expense_sheet.dart';
 import 'analytics_screen.dart';
 import 'dashboard_screen.dart';
 
-class MainNavigation extends StatefulWidget {
+class MainNavigation extends StatelessWidget {
   const MainNavigation({super.key});
 
-  @override
-  State<MainNavigation> createState() => _MainNavigationState();
-}
-
-class _MainNavigationState extends State<MainNavigation> {
-  int _currentIndex = 0;
-
-  late final List<Widget> _screens = const [
-    DashboardScreen(),
-    AnalyticsScreen(),
-    AccountsScreen(),
+  static const List<_TabItem> _tabs = [
+    _TabItem(title: 'Dashboard', icon: CupertinoIcons.square_grid_2x2_fill),
+    _TabItem(title: 'Analytics', icon: CupertinoIcons.chart_bar_fill),
+    _TabItem(title: 'Accounts', icon: CupertinoIcons.creditcard_fill),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final isAdding = context.select<ExpenseProvider, bool>(
-      (provider) => provider.isAdding,
-    );
-
-    return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF222222),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        onPressed: isAdding
-            ? null
-            : () {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: const Color(0xFF171717),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(24),
-                    ),
-                  ),
-                  builder: (_) => const AddExpenseSheet(),
-                );
-              },
-        child: isAdding
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.add),
+    return CupertinoTabScaffold(
+      tabBar: CupertinoTabBar(
+        backgroundColor: const Color(0xFF1C1C1E),
+        activeColor: CupertinoColors.systemBlue,
+        inactiveColor: CupertinoColors.inactiveGray,
+        items: [
+          for (final tab in _tabs)
+            BottomNavigationBarItem(
+              icon: Icon(tab.icon),
+              label: tab.title,
+            ),
+        ],
       ),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF171717),
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: const Color(0xFF8F8F8F),
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.space_dashboard_rounded),
-              label: 'Dashboard',
+      tabBuilder: (context, index) {
+        final isAdding = context.select<ExpenseProvider, bool>(
+          (p) => p.isAdding,
+        );
+        Widget screen;
+        String title;
+        bool showAddButton;
+        switch (index) {
+          case 0:
+            screen = const DashboardScreen();
+            title = 'Dashboard';
+            showAddButton = true;
+            break;
+          case 1:
+            screen = const AnalyticsScreen();
+            title = 'Analytics';
+            showAddButton = false;
+            break;
+          case 2:
+            screen = const AccountsScreen();
+            title = 'Accounts';
+            showAddButton = false;
+            break;
+          default:
+            screen = const DashboardScreen();
+            title = 'Dashboard';
+            showAddButton = true;
+        }
+        return CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            backgroundColor: const Color(0xFF1C1C1E),
+            border: null,
+            middle: Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 17,
+              ),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.insights_rounded),
-              label: 'Analytics',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet_rounded),
-              label: 'Accounts',
-            ),
-          ],
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            trailing: showAddButton
+                ? CupertinoButton(
+                    padding: const EdgeInsets.only(right: 8),
+                    onPressed: isAdding
+                        ? null
+                        : () => _presentAddExpense(context),
+                    child: isAdding
+                        ? const CupertinoActivityIndicator()
+                        : const Icon(CupertinoIcons.add_circled_solid),
+                  )
+                : null,
+          ),
+          child: SafeArea(
+            top: false,
+            child: screen,
+          ),
+        );
+      },
     );
   }
+
+  void _presentAddExpense(BuildContext context) {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (context) => const AddExpenseSheet(),
+    );
+  }
+}
+
+class _TabItem {
+  const _TabItem({required this.title, required this.icon});
+  final String title;
+  final IconData icon;
 }
